@@ -1,4 +1,6 @@
 const express = require('express')
+const fs = require('fs')
+const path = require('path')
 
 const app = express()
 
@@ -14,7 +16,30 @@ app.get('/currentTime', function(req, res){
 
 app.post('/store-user', function(req, res){
     const name = req.body.username
+
+    const filepath = path.join(__dirname , "data", "users.json")
+
+    const filedata = fs.readFileSync(filepath)
+    const existingUsers = JSON.parse(filedata)
+    existingUsers.push(name)
+    fs.writeFileSync(filepath, JSON.stringify(existingUsers))
     res.send('hello ' + name)
+})
+
+app.get('/users', function(req, res){
+    const filepath = path.join(__dirname , "data", "users.json")
+
+    const filedata = fs.readFileSync(filepath)
+    const existingUsers = JSON.parse(filedata)
+
+    let responseData = "<ul>"
+
+    for (let user in existingUsers){
+        responseData += "<li>" + user + "</li>"
+    }
+
+    responseData += "</ul>"
+    res.send(responseData)
 })
 
 app.listen(3000, function(req, res){
